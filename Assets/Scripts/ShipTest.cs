@@ -18,7 +18,7 @@ public class ShipTest : MonoBehaviour {
     public float brake_tilt = 10f;
 
     /*We will use all this stuff later*/
-    private Vector3 prev_up;
+    private Vector3 prevUp;
     private Vector3 prevFwd;
     public float yaw;
     private float roll;
@@ -62,27 +62,42 @@ public class ShipTest : MonoBehaviour {
         /*We get the user input and modifiy the direction the ship will face towards*/
         yaw += turn_speed * Time.deltaTime * Input.GetAxis("Horizontal");
         /*We want to save our current transform.up vector so we can smoothly change it later*/
-        prev_up = transform.up;
+        prevUp = transform.up;
         prevFwd = transform.forward;
         /*Now we set all angles to zero except for the Y which corresponds to the Yaw*/
         transform.rotation = Quaternion.Euler(0, yaw, 0);
 
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, -prev_up, out hit))
+        if (Physics.Raycast(transform.position, -prevUp, out hit))
         {
             Debug.DrawLine(transform.position, hit.point);
 
             /*Here are the meat and potatoes: first we calculate the new up vector for the ship using lerp so that it is smoothed*/
-            Vector3 desired_up = Vector3.Lerp(prev_up, hit.normal, Time.deltaTime * pitch_smooth);
+            Vector3 desired_up = Vector3.Lerp(prevUp, hit.normal, Time.deltaTime * pitch_smooth);
             /*Then we get the angle that we have to rotate in quaternion format*/
-            Quaternion tilt = Quaternion.FromToRotation(Vector3.up, desired_up);
+
+            Quaternion tilt = Quaternion.FromToRotation(transform.up, desired_up);
+
+            Debug.DrawRay(transform.position, tilt.eulerAngles, Color.red);
+            Debug.DrawRay(transform.position, transform.forward * 100, Color.green);
+
+
             /*Now we apply it to the ship with the quaternion product property*/
-            transform.localRotation = Quaternion.LookRotation(prevFwd, desired_up);
-            //* transform.rotation
+
+            //transform.rotation = Quaternion.LookRotation(transform.up, hit.normal) * Quaternion.FromToRotation(transform.up, hit.normal);
+            //Quaternion.Euler(0, turn_speed * Time.deltaTime * Input.GetAxis("Horizontal"), 0)
+            
+            //transform.RotateAround(transform.position, tr;
+
+            //* Quaternion.Euler(0, turn_speed * Time.deltaTime * Input.GetAxis("Horizontal"), 0)
+
+            //transform.rotation = Quaternion.LookRotation(prevFwd, hit.normal) * Quaternion.Euler(0, turn_speed * Time.deltaTime * Input.GetAxis("Horizontal"), 0);
+
+            transform.rotation = tilt * transform.rotation;
 
             /*Smoothly adjust our height*/
             smooth_y = Mathf.Lerp(smooth_y, hover_height - hit.distance, Time.deltaTime * height_smooth);
-            transform.localPosition += prev_up * smooth_y;
+            transform.localPosition += prevUp * smooth_y;
         }
 
         /*Finally we move the ship forward according to the speed we calculated before*/
