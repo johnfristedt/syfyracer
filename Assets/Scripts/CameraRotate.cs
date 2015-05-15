@@ -9,6 +9,14 @@ public class CameraRotate : MonoBehaviour {
     private float tilt;
     private float horizontal;
 
+    public float Tilt 
+    {
+        get
+        {
+            return tilt;
+        }
+    }
+
 	// Use this for initialization
 	void Start () {
 	
