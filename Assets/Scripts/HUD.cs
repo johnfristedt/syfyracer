@@ -11,27 +11,27 @@ public class HUD : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
-        transform.FindChild("Speedo").GetComponent<Slider>().maxValue = Player.GetComponent<Ship>().fwd_max_speed_normal;
+        GameObject.Find("Speedo").GetComponent<Slider>().maxValue = Player.GetComponent<Ship>().fwd_max_speed_normal;
 
         float maxTilt = Player.transform.FindChild("CameraMount").GetComponent<CameraRotate>().maxTilt;
-        transform.FindChild("RightRoll").GetComponent<Slider>().maxValue = maxTilt;
-        transform.FindChild("RightRoll").GetComponent<Slider>().minValue = -maxTilt;
+        GameObject.Find("RightRoll").GetComponent<Slider>().maxValue = maxTilt;
+        GameObject.Find("RightRoll").GetComponent<Slider>().minValue = -maxTilt;
 
-        transform.FindChild("RightRoll").GetComponent<Slider>().maxValue = -maxTilt;
-        transform.FindChild("RightRoll").GetComponent<Slider>().minValue = maxTilt;
+        GameObject.Find("LeftRoll").GetComponent<Slider>().maxValue = maxTilt;
+        GameObject.Find("LeftRoll").GetComponent<Slider>().minValue = -maxTilt;
 	}
 	
 	// Update is called once per frame
 	void Update () 
     {
         var ship = Player.GetComponent<Ship>();
-        var cameraMount = Player.transform.FindChild("CameraMount");
+        var cameraMount = GameObject.Find("CameraMount");
 
         shipSpeed = ship.CurrentSpeed;
 
         GameObject.Find("Speedo").GetComponent<Slider>().value = shipSpeed;
 
-        cameraMount.FindChild("RightRoll").GetComponent<Slider>().value = cameraMount.GetComponent<CameraRotate>().Tilt;
-        cameraMount.FindChild("LeftRoll").GetComponent<Slider>().value = -cameraMount.GetComponent<CameraRotate>().Tilt;
+        GameObject.Find("RightRoll").GetComponent<Slider>().value = -Input.GetAxis("Horizontal") * 20;
+        GameObject.Find("LeftRoll").GetComponent<Slider>().value = Input.GetAxis("Horizontal") * 20;
 	}
 }

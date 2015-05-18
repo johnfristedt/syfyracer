@@ -26,7 +26,10 @@ public class Ship : MonoBehaviour
     private float smooth_y;
     private float current_speed;
     private float fwd_max_speed;
-    private bool boost = false;
+    private bool onTrack = true;
+
+    private Vector3 lastPos;
+    private Quaternion lastRot;
 
     public float CurrentSpeed 
     { 
@@ -39,17 +42,11 @@ public class Ship : MonoBehaviour
     void Start()
     {
         fwd_max_speed = fwd_max_speed_normal;
+        yaw = transform.rotation.eulerAngles.y;
     }
 
     void Update()
     {
-        if (boost)
-            fwd_max_speed = fwd_max_speed_boost;
-        else
-            fwd_max_speed = fwd_max_speed_normal;
-
-
-
         /*Here we get user input to calculate the speed the ship will get*/
         /*Increase our current speed only if it is not greater than fwd_max_speed*/
         if (Input.GetAxis("Vertical") != 0)
@@ -77,7 +74,7 @@ public class Ship : MonoBehaviour
         transform.rotation = Quaternion.Euler(0, yaw, 0);
 
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, -prevUp, out hit))
+        if (onTrack && Physics.Raycast(transform.position, -prevUp, out hit))
         {
             Debug.DrawLine(transform.position, hit.point);
 
@@ -90,12 +87,12 @@ public class Ship : MonoBehaviour
             Debug.DrawRay(transform.position, tilt.eulerAngles, Color.red);
             Debug.DrawRay(transform.position, transform.forward * 100, Color.green);
 
+            //transform.rotation = Quaternion.LookRotation(transform.up, hit.normal) * Quaternion.Euler(0, Input.GetAxis("Horizontal"), 0);
+
             transform.rotation = tilt * transform.rotation;
 
 
             /*Now we apply it to the ship with the quaternion product property*/
-
-            //transform.rotation = Quaternion.LookRotation(transform.up, hit.normal) * Quaternion.FromToRotation(transform.up, hit.normal);
             //Quaternion.Euler(0, turn_speed * Time.deltaTime * Input.GetAxis("Horizontal"), 0)
 
             //transform.RotateAround(transform.position, tr;
@@ -107,6 +104,19 @@ public class Ship : MonoBehaviour
             /*Smoothly adjust our height*/
             smooth_y = Mathf.Lerp(smooth_y, hover_height - hit.distance, Time.deltaTime * height_smooth);
             transform.localPosition += prevUp * smooth_y;
+
+            lastPos = transform.position;
+            lastRot = transform.rotation;
+        }
+        else
+            onTrack = false;
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        { 
+            transform.position = lastPos;
+            transform.rotation = lastRot;
+            Debug.Log("Reset");
+            onTrack = true;
         }
 
         /*Finally we move the ship forward according to the speed we calculated before*/
