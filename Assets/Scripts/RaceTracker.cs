@@ -51,13 +51,13 @@ public class RaceTracker : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Finish")
+        if (other.gameObject.tag == "Checkpoint")
         {
             checkpointCount++;
         }
-        else if (other.gameObject.tag == "Checkpoint")
+        else if (other.gameObject.tag == "Finish")
         {
-            if (checkpointCount == totalCheckpoints || true)
+            if (checkpointCount == totalCheckpoints)
             {
                 GameObject.Find("LapCounter").GetComponent<Text>().text = "Lap " + Mathf.Min(currentLap, totalLaps) + "/" + totalLaps;
 
