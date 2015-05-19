@@ -29,6 +29,7 @@ public class RaceTracker : MonoBehaviour
     {
         checkpoints = GameObject.FindGameObjectsWithTag("Checkpoint");
         totalCheckpoints = checkpoints.Length;
+        lapTimes = new List<GameObject>();
     }
 
     // Update is called once per frame
@@ -42,35 +43,36 @@ public class RaceTracker : MonoBehaviour
             seconds = (int)(lapTimer % 60);
             fractions = (int)((lapTimer - (int)lapTimer) * 100);
 
-            //GameObject.Find("LapTimer").GetComponent<Text>().text = string.Format("{0}:{1}:{2}", (minutes > 0) ? minutes : 0,
-            //                                                                                     (seconds.ToString().Length > 1) ? seconds.ToString() : "0" + seconds.ToString(),
-            //                                                                                     (fractions.ToString().Length > 1) ? fractions.ToString() : "0" + fractions.ToString());
+            GameObject.Find("LapTimer").GetComponent<Text>().text = string.Format("{0}:{1}:{2}", (minutes > 0) ? minutes : 0,
+                                                                                                 (seconds.ToString().Length > 1) ? seconds.ToString() : "0" + seconds.ToString(),
+                                                                                                 (fractions.ToString().Length > 1) ? fractions.ToString() : "0" + fractions.ToString());
         }
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Checkpoint")
+        if (other.gameObject.tag == "Finish")
         {
             checkpointCount++;
         }
-        else if (other.gameObject.tag == "Finish")
+        else if (other.gameObject.tag == "Checkpoint")
         {
-            if (checkpointCount == totalCheckpoints)
+            if (checkpointCount == totalCheckpoints || true)
             {
                 GameObject.Find("LapCounter").GetComponent<Text>().text = "Lap " + Mathf.Min(currentLap, totalLaps) + "/" + totalLaps;
 
                 lapTimes.Add(Instantiate(LapTimePrefab));
 
-                lapTimes[lapTimes.Count - 1].GetComponent<Text>().text = string.Format("Lap {0}: {1}:{2}:{3}", currentLap,
-                                                                                                               (minutes > 0) ? minutes : 0,
-                                                                                                               (seconds.ToString().Length > 1) ? seconds.ToString() : "0" + seconds.ToString(),
-                                                                                                               (fractions.ToString().Length > 1) ? fractions.ToString() : "0" + fractions.ToString());
+                lapTimes[lapTimes.Count - 1].GetComponent<Text>().text = string.Format("{0}:{1}:{2}", (minutes > 0) ? minutes : 0,
+                                                                                                      (seconds.ToString().Length > 1) ? seconds.ToString() : "0" + seconds.ToString(),
+                                                                                                      (fractions.ToString().Length > 1) ? fractions.ToString() : "0" + fractions.ToString());
 
                 lapTimes[lapTimes.Count - 1].transform.parent = GameObject.Find("Lap").transform;
-                Vector3 pos = new Vector3(-910, -250 - (60 * (lapTimes.Count - 1)), 0);
+                Vector3 pos = new Vector3(-460, -150 - (60 * (lapTimes.Count - 1)), 0);
                 Debug.Log(pos);
                 lapTimes[lapTimes.Count - 1].transform.localPosition = pos;
+                lapTimes[lapTimes.Count - 1].transform.localRotation = Quaternion.identity;
+                lapTimes[lapTimes.Count - 1].transform.localScale = Vector3.one;
 
                 checkpointCount = 0;
                 currentLap++;

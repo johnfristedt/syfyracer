@@ -21,7 +21,8 @@ public class Ship : MonoBehaviour
     /* Other stuff */
     private Vector3 prevUp;
     private Vector3 prevFwd;
-    public float yaw;
+    private float yaw;
+    private float prevYaw;
     private float roll;
     private float smooth_y;
     private float current_speed;
@@ -47,8 +48,10 @@ public class Ship : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetAxis("Vertical") != 0)
-            current_speed += (current_speed >= fwd_max_speed) ? 0f : fwd_accel * (Input.GetAxis("Vertical") * Time.deltaTime);
+        //if (Input.GetAxis("Vertical") != 0)
+        //    current_speed += (current_speed >= fwd_max_speed) ? 0f : fwd_accel * (Input.GetAxis("Vertical") * Time.deltaTime);
+        if(Input.GetAxis("RightTrigger") != 0)
+            current_speed += (current_speed >= fwd_max_speed) ? 0f : fwd_accel * (-Input.GetAxis("RightTrigger") * Time.deltaTime);
 
         else
         {
@@ -62,6 +65,7 @@ public class Ship : MonoBehaviour
             }
         }
 
+        prevYaw = yaw;
 
         yaw += turn_speed * Time.deltaTime * Input.GetAxis("Horizontal");
 
