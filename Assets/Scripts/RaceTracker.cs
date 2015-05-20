@@ -5,7 +5,8 @@ using System.Collections.Generic;
 
 public class RaceTracker : MonoBehaviour
 {
-
+    public GameObject HUD;
+    public GameObject FinishMenu;
     public GameObject LapTimePrefab;
 
     private GameObject[] checkpoints;
@@ -16,36 +17,47 @@ public class RaceTracker : MonoBehaviour
     private int totalLaps = 3;
 
     private float lapTimer = 0;
-    private List<GameObject> lapTimes;
+    private List<float> lapTimes;
 
     private int minutes;
     private int seconds;
     private int fractions;
 
-    private bool raceOver = false;
+    private bool raceOn = false;
+
+    private Button ready;
 
     // Use this for initialization
     void Start()
     {
         checkpoints = GameObject.FindGameObjectsWithTag("Checkpoint");
         totalCheckpoints = checkpoints.Length;
-        lapTimes = new List<GameObject>();
+        lapTimes = new List<float>();
+        ready = GameObject.Find("Ready").GetComponent<Button>();
+        ready.Select();
+        ready.onClick.AddListener(() => StartRace());
+        HUD.SetActive(false);
+        //GameObject.Find("ReadyCheck").SetActive(true);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!raceOver)
+        if (raceOn)
         {
             lapTimer += Time.deltaTime;
 
             minutes = (int)(lapTimer / 60);
             seconds = (int)(lapTimer % 60);
             fractions = (int)((lapTimer - (int)lapTimer) * 100);
-
+            
             GameObject.Find("LapTimer").GetComponent<Text>().text = string.Format("{0}:{1}:{2}", (minutes > 0) ? minutes : 0,
                                                                                                  (seconds.ToString().Length > 1) ? seconds.ToString() : "0" + seconds.ToString(),
                                                                                                  (fractions.ToString().Length > 1) ? fractions.ToString() : "0" + fractions.ToString());
+        }
+        else
+        {
+
         }
     }
 
@@ -61,18 +73,7 @@ public class RaceTracker : MonoBehaviour
             {
                 GameObject.Find("LapCounter").GetComponent<Text>().text = "Lap " + Mathf.Min(currentLap, totalLaps) + "/" + totalLaps;
 
-                lapTimes.Add(Instantiate(LapTimePrefab));
-
-                lapTimes[lapTimes.Count - 1].GetComponent<Text>().text = string.Format("{0}:{1}:{2}", (minutes > 0) ? minutes : 0,
-                                                                                                      (seconds.ToString().Length > 1) ? seconds.ToString() : "0" + seconds.ToString(),
-                                                                                                      (fractions.ToString().Length > 1) ? fractions.ToString() : "0" + fractions.ToString());
-
-                lapTimes[lapTimes.Count - 1].transform.parent = GameObject.Find("Lap").transform;
-                Vector3 pos = new Vector3(-460, -150 - (60 * (lapTimes.Count - 1)), 0);
-                Debug.Log(pos);
-                lapTimes[lapTimes.Count - 1].transform.localPosition = pos;
-                lapTimes[lapTimes.Count - 1].transform.localRotation = Quaternion.identity;
-                lapTimes[lapTimes.Count - 1].transform.localScale = Vector3.one;
+                lapTimes.Add(lapTimer);
 
                 checkpointCount = 0;
                 currentLap++;
@@ -84,11 +85,52 @@ public class RaceTracker : MonoBehaviour
                 if (currentLap > totalLaps)
                 {
                     Debug.Log("Finish");
-                    raceOver = true;
+                    StopRace();
                 }
                 else
                     Debug.Log("Lap " + currentLap);
             }
         }
+    }
+
+    void StartRace()
+    {
+        HUD.SetActive(true);
+        //GameObject.Find("HUD").SetActive(true);
+        GameObject.Find("ReadyCheck").SetActive(false);
+
+        raceOn = true;
+    }
+
+    void StopRace()
+    {
+        raceOn = false;
+
+        HUD.SetActive(false);
+        FinishMenu.SetActive(true);
+
+        for (int i = 0; i < lapTimes.Count; i++)
+        {
+            minutes = (int)(lapTimes[i] / 60);
+            seconds = (int)(lapTimes[i] % 60);
+            fractions = (int)((lapTimes[i] - (int)lapTimes[i]) * 100);
+
+            GameObject lapTime = Instantiate(LapTimePrefab);
+
+            lapTime.GetComponent<Text>().text = string.Format("Lap {0}: {1}:{2}:{3}", (i + 1),
+                                                                                      (minutes > 0) ? minutes : 0,
+                                                                                      (seconds.ToString().Length > 1) ? seconds.ToString() : "0" + seconds.ToString(),
+                                                                                      (fractions.ToString().Length > 1) ? fractions.ToString() : "0" + fractions.ToString());
+
+            lapTime.transform.parent = FinishMenu.transform;
+
+            Vector3 pos = new Vector3(-150, 80 - (60 * (i - 1)), 0);
+            Debug.Log(pos);
+            lapTime.transform.localPosition = pos;
+            lapTime.transform.localRotation = Quaternion.identity;
+            lapTime.transform.localScale = Vector3.one;
+        }
+
+        GameObject.Find("BackToMenu").GetComponent<Button>().Select();
     }
 }

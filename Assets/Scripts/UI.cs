@@ -18,5 +18,6 @@ public class UI : MonoBehaviour
     {
         transform.position = Anchor.position + (Anchor.forward * Distance);
         transform.rotation = Quaternion.LookRotation(transform.position - Anchor.position, Anchor.up);
+        transform.Rotate(Vector3.forward * Anchor.GetComponent<CameraRotate>().Tilt);
     }
 }

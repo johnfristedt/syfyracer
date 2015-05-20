@@ -81,12 +81,14 @@ public class Ship : MonoBehaviour
 
             Vector3 desired_up = Vector3.Lerp(prevUp, hit.normal, Time.deltaTime * pitch_smooth);
 
-            Quaternion tilt = Quaternion.FromToRotation(transform.up, desired_up);
+            Quaternion tilt = Quaternion.FromToRotation(Vector3.up, desired_up);
 
-            Debug.DrawRay(transform.position, tilt.eulerAngles, Color.red);
+            Debug.DrawRay(transform.position, hit.normal * 100, Color.red);
             Debug.DrawRay(transform.position, transform.forward * 100, Color.green);
+            Debug.DrawRay(transform.position, transform.right * 100, Color.blue);
 
-            transform.rotation = tilt * transform.rotation;
+            transform.rotation = Quaternion.LookRotation(Vector3.Cross(transform.right, hit.normal), hit.normal);
+            //transform.rotation = Quaternion.Euler(x.eulerAngles + transform.rotation.eulerAngles);
 
             smooth_y = Mathf.Lerp(smooth_y, hover_height - hit.distance, Time.deltaTime * height_smooth);
             transform.localPosition += prevUp * smooth_y;
