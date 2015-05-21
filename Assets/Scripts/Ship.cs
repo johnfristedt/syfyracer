@@ -72,7 +72,7 @@ public class Ship : MonoBehaviour
         prevUp = transform.up;
         prevFwd = transform.forward;
 
-        transform.rotation = Quaternion.Euler(0, yaw, 0);
+        //transform.rotation = Quaternion.Euler(0, yaw, 0);
 
         RaycastHit hit;
         if (onTrack && Physics.Raycast(transform.position, -prevUp, out hit))
@@ -86,8 +86,10 @@ public class Ship : MonoBehaviour
             Debug.DrawRay(transform.position, hit.normal * 100, Color.red);
             Debug.DrawRay(transform.position, transform.forward * 100, Color.green);
             Debug.DrawRay(transform.position, transform.right * 100, Color.blue);
+            Debug.DrawRay(transform.position, transform.up * 100, Color.yellow);
 
-            transform.rotation = Quaternion.LookRotation(Vector3.Cross(transform.right, hit.normal), hit.normal);
+            transform.rotation = Quaternion.LookRotation(Vector3.Cross(transform.right, desired_up), desired_up);
+            transform.Rotate(Vector3.up, turn_speed * Time.deltaTime * Input.GetAxis("Horizontal"));
             //transform.rotation = Quaternion.Euler(x.eulerAngles + transform.rotation.eulerAngles);
 
             smooth_y = Mathf.Lerp(smooth_y, hover_height - hit.distance, Time.deltaTime * height_smooth);
