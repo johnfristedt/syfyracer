@@ -99,7 +99,11 @@ public class Ship : MonoBehaviour
             lastRot = transform.rotation;
         }
         else
-            onTrack = false;
+        {
+            transform.position = lastPos;
+            transform.rotation = lastRot;
+            current_speed = 0;
+        }
 
         if (Input.GetKeyDown(KeyCode.Space))
         { 
