@@ -32,6 +32,8 @@ public class Ship : MonoBehaviour
     private Vector3 lastPos;
     private Quaternion lastRot;
 
+    private Vector3 startPos;
+
     public float CurrentSpeed 
     { 
         get 
@@ -44,12 +46,17 @@ public class Ship : MonoBehaviour
     {
         fwd_max_speed = fwd_max_speed_normal;
         yaw = transform.rotation.eulerAngles.y;
+        startPos = transform.position;
     }
 
     void Update()
     {
         //if (Input.GetAxis("Vertical") != 0)
         //    current_speed += (current_speed >= fwd_max_speed) ? 0f : fwd_accel * (Input.GetAxis("Vertical") * Time.deltaTime);
+
+        if (Input.GetButton("Y"))
+            transform.position = startPos;
+
         if(Input.GetAxis("RightTrigger") != 0)
             current_speed += (current_speed >= fwd_max_speed) ? 0f : fwd_accel * (-Input.GetAxis("RightTrigger") * Time.deltaTime);
 
