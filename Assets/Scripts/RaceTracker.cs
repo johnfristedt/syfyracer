@@ -33,11 +33,12 @@ public class RaceTracker : MonoBehaviour
         checkpoints = GameObject.FindGameObjectsWithTag("Checkpoint");
         totalCheckpoints = checkpoints.Length;
         lapTimes = new List<float>();
-        ready = GameObject.Find("Ready").GetComponent<Button>();
-        ready.Select();
-        ready.onClick.AddListener(() => StartRace());
+        //ready = GameObject.Find("Ready").GetComponent<Button>();
+        //ready.Select();
+        //ready.onClick.AddListener(() => StartRace());
         HUD.SetActive(false);
         //GameObject.Find("ReadyCheck").SetActive(true);
+        StartRace();
     }
 
     // Update is called once per frame
@@ -97,7 +98,7 @@ public class RaceTracker : MonoBehaviour
     {
         HUD.SetActive(true);
         //GameObject.Find("HUD").SetActive(true);
-        GameObject.Find("ReadyCheck").SetActive(false);
+        //GameObject.Find("ReadyCheck").SetActive(false);
 
         raceOn = true;
     }

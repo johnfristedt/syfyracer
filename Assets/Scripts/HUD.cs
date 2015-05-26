@@ -11,7 +11,7 @@ public class HUD : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
-        GameObject.Find("Speedo").GetComponent<Slider>().maxValue = Player.GetComponent<Ship>().fwd_max_speed_normal;
+        GameObject.Find("Speedo").GetComponent<Slider>().maxValue = Player.GetComponent<Ship>().fwdMaxSpeedNormal;
 
         float maxTilt = Player.transform.FindChild("CameraMount").GetComponent<CameraRotate>().maxTilt;
         GameObject.Find("RightRoll").GetComponent<Slider>().maxValue = maxTilt;
