@@ -101,8 +101,8 @@ public class Ship : MonoBehaviour
                 transform.Rotate(Vector3.up, turnSpeed * Time.deltaTime * Input.GetAxis("Horizontal"));
                 //transform.rotation = Quaternion.Euler(x.eulerAngles + transform.rotation.eulerAngles);
 
-                smoothY = Mathf.Lerp(smoothY, hoverHeight - hit.distance, Time.deltaTime * heightSmooth);
-                transform.localPosition += prevUp * Mathf.Max(-0.6f, smoothY);
+                smoothY = Mathf.Lerp(smoothY, hoverHeight - Mathf.Min(4, hit.distance), Time.deltaTime * heightSmooth);
+                transform.localPosition += prevUp * smoothY;
 
                 lastPos = transform.position;
                 lastRot = transform.rotation;
