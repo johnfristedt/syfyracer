@@ -50,7 +50,6 @@ public class Ship : MonoBehaviour
             return currentSpeed;
         }
     }
-
     void Start()
     {
         fwdMaxSpeed = fwdMaxSpeedNormal;
