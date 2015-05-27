@@ -19,18 +19,27 @@ public class Ship : MonoBehaviour
     public float brakeTilt = 10f;
 
     /* Other stuff */
+    public float fallSpeed = 4;
+
     private Vector3 prevUp;
     private Vector3 prevFwd;
+    private Vector3 prevPos;
+    private Vector3 pitchDelta;
+
+    private Quaternion prevRot;
+
     private float yaw;
     private float prevYaw;
     private float roll;
     private float smoothY;
     private float currentSpeed;
     private float fwdMaxSpeed;
+    private float deltaFactor;
+
     private bool onTrack = true;
 
-    private Vector3 lastPos;
-    private Quaternion lastRot;
+    private RaycastHit hit;
+
 
     private Vector3 startPos;
 
@@ -59,20 +68,14 @@ public class Ship : MonoBehaviour
             Application.LoadLevel(1);
         }
 
-        if (Input.GetAxis("RightTrigger") != 0)
-            currentSpeed += (currentSpeed >= fwdMaxSpeed) ? 0f : fwdAccel * (-Input.GetAxis("RightTrigger") * Time.deltaTime);
+        float throttle = -Input.GetAxis("RightTrigger");
 
-        else
-        {
-            if (currentSpeed > 0)
-            {
-                currentSpeed -= brakeSpeed * Time.deltaTime;
-            }
-            else
-            {
-                currentSpeed = 0f;
-            }
-        }
+        if (Input.GetAxis("RightTrigger") != 0)
+            currentSpeed += (currentSpeed >= fwdMaxSpeed) ? 0f : fwdAccel * (throttle * Time.deltaTime);
+        else if (currentSpeed > 0)
+            currentSpeed -= Time.deltaTime * 40;
+
+        Debug.Log(currentSpeed);
 
         prevYaw = yaw;
 
@@ -81,48 +84,30 @@ public class Ship : MonoBehaviour
         prevUp = transform.up;
         prevFwd = transform.forward;
 
-        RaycastHit hit;
-        if (!Input.GetButton("Y"))
+        if (onTrack && Physics.Raycast(transform.position, -prevUp, out hit))
         {
-            if (onTrack && Physics.Raycast(transform.position, -prevUp, out hit))
-            {
-                Debug.DrawLine(transform.position, hit.point);
+            Debug.DrawLine(transform.position, hit.point);
 
-                Vector3 desired_up = Vector3.Lerp(prevUp, hit.normal, Time.deltaTime * pitchSmooth);
+            pitchDelta = transform.up - hit.normal;
+            deltaFactor = pitchDelta.magnitude;
 
-                Quaternion tilt = Quaternion.FromToRotation(Vector3.up, desired_up);
+            Vector3 desired_up = Vector3.Lerp(prevUp, hit.normal, Time.deltaTime * pitchSmooth * (deltaFactor * 3));
 
-                Debug.DrawRay(transform.position, hit.normal * 100, Color.red);
-                Debug.DrawRay(transform.position, transform.forward * 100, Color.green);
-                Debug.DrawRay(transform.position, transform.right * 100, Color.blue);
-                Debug.DrawRay(transform.position, transform.up * 100, Color.yellow);
+            Quaternion tilt = Quaternion.FromToRotation(Vector3.up, desired_up);
 
-                transform.rotation = Quaternion.LookRotation(Vector3.Cross(transform.right, desired_up), desired_up);
-                transform.Rotate(Vector3.up, turnSpeed * Time.deltaTime * Input.GetAxis("Horizontal"));
-                //transform.rotation = Quaternion.Euler(x.eulerAngles + transform.rotation.eulerAngles);
+            Debug.DrawRay(transform.position, hit.normal * 100, Color.red);
+            Debug.DrawRay(transform.position, transform.forward * 100, Color.green);
+            Debug.DrawRay(transform.position, transform.right * 100, Color.blue);
+            Debug.DrawRay(transform.position, transform.up * 100, Color.yellow);
 
-                smoothY = Mathf.Lerp(smoothY, hoverHeight - Mathf.Min(4, hit.distance), Time.deltaTime * heightSmooth);
-                transform.localPosition += prevUp * smoothY;
+            transform.rotation = Quaternion.LookRotation(Vector3.Cross(transform.right, desired_up), desired_up);
+            transform.Rotate(Vector3.up, turnSpeed * Time.deltaTime * Input.GetAxis("Horizontal"));
 
-                lastPos = transform.position;
-                lastRot = transform.rotation;
-            }
-            else
-            {
+            smoothY = Mathf.Lerp(smoothY, hoverHeight - Mathf.Min(fallSpeed, hit.distance), Time.deltaTime * (heightSmooth * Mathf.Max(3, hit.distance)));
+            transform.localPosition += prevUp * smoothY;
 
-
-                //transform.position = lastPos;
-                //transform.rotation = lastRot;
-                //current_speed = 0;
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            transform.position = lastPos;
-            transform.rotation = lastRot;
-            Debug.Log("Reset");
-            onTrack = true;
+            prevPos = transform.position;
+            prevRot = transform.rotation;
         }
 
         transform.position += transform.forward * (currentSpeed * Time.deltaTime);
